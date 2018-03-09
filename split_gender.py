@@ -1,7 +1,5 @@
 import numpy as np
 import pandas as pd
-import pandas_profiling
-import matplotlib.pyplot as plt
 
 df = pd.read_csv("./data/kiva_loans.csv", parse_dates=True)
 
@@ -28,9 +26,3 @@ gensec = df.groupby('borrower_genders')['sector'].value_counts()
 gensec = gensec.unstack().transpose()
 
 df['disbursed_year'] = pd.to_datetime(df.disbursed_time).dt.year
-
-fig = plt.figure(figsize=(12,6))
-plt.plot(gensec.apply(lambda row: row/gensec.sum(1)));
-plt.legend(['both', 'female', 'male']);
-plt.xticks(rotation=60);
-plt.show()
