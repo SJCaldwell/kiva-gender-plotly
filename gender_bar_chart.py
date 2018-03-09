@@ -59,7 +59,7 @@ app.layout = html.Div(className='container', children=[
         }
     ),
     html.Div(dcc.Graph(  # add a bar graph to dashboard
-        id='basic-interactions',
+        id='top5-by-gender',
         figure={
             'data': [
                 {
@@ -70,41 +70,35 @@ app.layout = html.Div(className='container', children=[
                 }
             ]
         }
-            ))
+            )),
+    
+    html.Label('Gender'),
+    dcc.RadioItems(
+        id = 'gender-radio',
+        options=[
+            {'label': 'Male', 'value': 'male'},
+            {'label': 'Female', 'value': 'female'},
+            {'label': 'Both', 'value': 'both'}
+        ],
+        value='both'
+    )
     ])
 
-# Joe scatter-plot
 @app.callback(
-    dash.dependencies.Output('scatter-with-slider', 'figure'),
-    [dash.dependencies.Input('scatter-slider', 'value')])
-def update_scatter(selected_year):
-    filtered_df = df[df['year'] == selected_year]
-    traces = []
-    for i in filtered_df.sector.unique():
-        df_by_sector = filtered_df[filtered_df['sector'] == i]
-        traces.append(go.Scatter(
-            x=[np.mean(df_by_sector[df_by_sector['country'] == j].loan_amount) for j in df_by_sector.country.unique()],
-            y=[np.mean(df_by_sector[df_by_sector['country'] == j].lender_count) for j in df_by_sector.country.unique()],
-            text=df_by_sector['country'],
-            mode='markers',
-            opacity=0.7,
-            marker={
-                'size': 15,
-                'line': {'width': 0.5, 'color': 'white'}
-            },
-            name=i
-        ))
-
+    dash.dependencies.Output('top5-by-gender', 'figure'),
+    [dash.dependencies.Input('gender-radio', 'value')])
+def update_barchart(gender):
+    top5 = df[df.borrower_genders == gender].groupby('activity').size().sort_values(ascending=False)[0:5]
     return {
-        'data': traces,
-        'layout': go.Layout(
-            xaxis={'type': 'linear', 'title': 'Loan Amount', 'autorange': 'True'},
-            yaxis={'type': 'linear', 'title': 'Lender Count', 'autorange': 'True'},
-            margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
-            legend={'x': 0, 'y': 1},
-            hovermode='closest'
-        )
-    }
+            'data': [
+                {
+                    'x': top5.index,
+                    'y': top5,
+                    'type': 'bar',
+                    'opacity': .6
+                }
+            ]
+        }
 
 if __name__ == '__main__':
     app.run_server(debug=True)
