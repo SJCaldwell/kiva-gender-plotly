@@ -28,6 +28,9 @@ def split_borrower_gender(l):
 df.borrower_genders = df.borrower_genders.str.split(', ').apply(split_borrower_gender)
 
 df['disbursed_year'] = pd.to_datetime(df.disbursed_time).dt.year
+top5 = df.groupby('activity').size().sort_values(ascending=False)[0:5]  # lets look at top 5
+top5_male = df.groupby('activity').size().sort_values(ascending=False)[0:5]
+top5_female = df[df.borrower_genders == 'female'].groupby('activity').size().sort_values(ascending=False)[0:5]
 
 app = dash.Dash()
 app.layout = html.Div(className='container', children=[
@@ -38,7 +41,39 @@ app.layout = html.Div(className='container', children=[
                value=df.disbursed_year.min(),
                marks={str(year): str(year) for year in [2013, 2014, 2015, 2016,
                                                         2017]}
-              )], style={'marginLeft': 50, 'marginRight': 50})
+              )], style={'marginLeft': 50, 'marginRight': 50}),
+        html.H1(
+        children='Top 5 activities for loans',
+        style={
+            'textAlign': 'center',  # center the header
+            'color': '#7F7F7F'
+            # https://www.biotechnologyforums.com/thread-7742.html more color code options
+        }
+    ),
+    html.Div(dcc.Graph(  # add a bar graph to dashboard
+        id='top5-by-gender',
+        figure={
+            'data': [
+                {
+                    'x': top5_male.index,
+                    'y': top5_male,
+                    'type': 'bar',
+                    'opacity': .6  # changes the bar chart's opacity
+                }
+            ]
+        }
+            )),
+    
+    html.Label('Gender'),
+    dcc.RadioItems(
+        id = 'gender-radio',
+        options=[
+            {'label': 'Male', 'value': 'male'},
+            {'label': 'Female', 'value': 'female'},
+            {'label': 'Both', 'value': 'both'}
+        ],
+        value='both'
+    )
 ])
 
 @app.callback(
@@ -65,6 +100,24 @@ def update_gender_by_sector(selected_year):
         'data': data,
         'layout': layout
     }
+
+@app.callback(
+    dash.dependencies.Output('top5-by-gender', 'figure'),
+    [dash.dependencies.Input('gender-radio', 'value')])
+def update_barchart(gender):
+    top5 = df[df.borrower_genders == gender].groupby('activity').size().sort_values(ascending=False)[0:5]
+    return {
+            'data': [
+                {
+                    'x': top5.index,
+                    'y': top5,
+                    'type': 'bar',
+                    'opacity': .6,
+                    "color": "rgb(30, 55, 5)"
+                }
+            ]
+        }
+
 
 
 if __name__ == "__main__":
