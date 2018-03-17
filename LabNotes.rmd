@@ -1,0 +1,33 @@
+---
+title: "Lab Notes"
+author: "Lilianne Raud"
+date: "March 16, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Group Members:
+
+Lilly, Mackenzie, Shane and Stephanie
+
+### Question, story the data can tell:
+
+Our interest was to look at the data from different perspectives and compare how genders were either  different or similar. We plotted gender percentage by sector, aggregated and plotted top 5 activities by gender and number of loans mapped by country. 
+
+Two versions of dashboard were created, app.py and https://plot.ly/dashboard/LillyRaud:2/view. 
+
+Screenshots of both are attached.
+
+#### plot.ly/dashboard: 
+pluses: unified style and pleasing layout. Map presents gender ratios, so the whole dashboard is telling the same story.
+
+minuses: in this version, the filters do not work, not sure if this is considered as working code.
+
+####app.py:
+pluses: working python code, filters work as expected
+
+minuses: each plot is in it's own style, need to unify font, color and location of filters and legends; map shows total loans, not gender ratio by country. 
+
